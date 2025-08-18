@@ -6,10 +6,10 @@
 ========================== */
 const app = document.getElementById('app');
 
-// 엔드포인트 (필요 시 변경)
-const QUOTE_API = '/api/next-quote';
-const TRANSCRIPT_API = '/api/transcript';
-const ASR_API = '/api/asr';
+// 엔드포인트 (백엔드 실제 API와 매칭)
+const QUOTE_API = '/api/v1/affirmations/main';
+const TRANSCRIPT_API = '/api/v1/speech/logs';
+const ASR_API = '/api/v1/speech/recognize';
 
 /* ==========================
    뷰 전환 / 라우팅
@@ -530,10 +530,10 @@ function initReadVoice(){
    correct 뷰: 문장 주입 + 북마크 토글 + 랜덤 응원 + 홈버튼
 ───────────────────────────────────────────── */
 
-// 서버 엔드포인트: 여기서 서버 주소 바꿔주세용
-const BOOKMARK_EXISTS_API = '/api/bookmarks/exists?text=';
-const BOOKMARK_ADD_API    = '/api/bookmarks';
-const BOOKMARK_DEL_API    = '/api/bookmarks';
+// 서버 엔드포인트: 백엔드 실제 API와 매칭
+const BOOKMARK_EXISTS_API = '/api/v1/bookmarks/check?sentence=';
+const BOOKMARK_ADD_API    = '/api/v1/bookmarks/add';
+const BOOKMARK_DEL_API    = '/api/v1/bookmarks/remove';
 
 /* 🔐 JWT 토큰 → Authorization 헤더 자동 부착 공통 래퍼 */
 function getJwtToken() {
@@ -593,7 +593,7 @@ async function checkBookmark(text){
   const url = BOOKMARK_EXISTS_API + encodeURIComponent(text);
   try {
     const data = await fetchJSONWithAuth(url, { method: 'GET' });
-    return !!data.exists;
+    return !!data; // 백엔드에서 boolean 직접 반환
   } catch (e) {
     console.error('checkBookmark failed:', e);
     return false; // 실패 시 기본값
@@ -603,15 +603,15 @@ async function checkBookmark(text){
 async function addBookmark(text){
   await fetchJSONWithAuth(BOOKMARK_ADD_API, {
     method: 'POST',
-    body: { text }
+    body: { sentence: text, tone: 'normal' } // 백엔드 BookmarkRequestDto 맞춤
   });
 }
 
 async function removeBookmark(text){
-  // 백엔드가 DELETE JSON을 받지 않으면, POST /bookmarks/delete 로 변경
-  await fetchJSONWithAuth(BOOKMARK_DEL_API, {
-    method: 'DELETE',
-    body: { text }
+  // 백엔드 API는 query parameter 사용
+  const url = BOOKMARK_DEL_API + '?sentence=' + encodeURIComponent(text);
+  await fetchJSONWithAuth(url, {
+    method: 'DELETE'
   });
 }
 
@@ -791,9 +791,11 @@ function initBookmarkView(){
   */
 }
 
-// ===== 커스텀문장 API 엔드포인트(예시) =====
-const CUSTOM_LIST_ME_API    = '/api/custom-sentences/me';                    // JWT 인증
-const CUSTOM_LIST_BYID_API  = (uid) => `/api/users/${uid}/custom-sentences`; // 쿠키 id 기반
+// ===== 북마크/커스텀문장 API 엔드포인트 =====
+const BOOKMARK_LIST_ME_API = '/api/v1/bookmarks';                     // JWT 인증
+const BOOKMARK_LIST_BYID_API = (uid) => `/api/v1/bookmarks`;          // 쿠키 id 기반
+const CUSTOM_LIST_ME_API    = '/api/v1/bookmarks';                    // JWT 인증 (북마크와 동일)
+const CUSTOM_LIST_BYID_API  = (uid) => `/api/v1/bookmarks`;           // 쿠키 id 기반
 
 function initCustomView(){
   const quoteEl = app.querySelector('#quoteText');       // 커스텀 문장 표시 영역
