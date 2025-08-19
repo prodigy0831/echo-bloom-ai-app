@@ -89,18 +89,8 @@ function bindLocalEvents() {
 
 
 // 초기 메인 화면 버튼 이벤트
-document.getElementById('startKakao')?.addEventListener('click', async () => {
-  try {
-    // 백엔드에서 카카오 로그인 URL 받아오기
-    const response = await fetch('/auth/kakao/login-url');
-    if (!response.ok) throw new Error('Failed to get login URL');
-    
-    const loginUrl = await response.text();
-    window.location.href = loginUrl;
-  } catch (error) {
-    console.error('카카오 로그인 URL 생성 실패:', error);
-    alert('로그인 준비 중 오류가 발생했습니다. 다시 시도해주세요.');
-  }
+document.getElementById('startKakao')?.addEventListener('click', () => {
+  loadView('views/intro.html'); // 예시: 전환될 화면 파일 경로
 });
 document.getElementById('skipLink')?.addEventListener('click', (e) => {
   e.preventDefault();

@@ -7,8 +7,8 @@
 const app = document.getElementById('app');
 
 // 엔드포인트 (백엔드 실제 API와 매칭)
-const QUOTE_API = '/api/v1/affirmations/main';  // 문제와 톤을 바탕으로 생성한 '읽을 문구'를 이 서버에서 불러옴
-const TRANSCRIPT_API = '/api/v1/speech/logs';   // 어떤 사용자가 무슨 문구를 읽었는지 이 서버로 전송
+const QUOTE_API = '/api/v1/affirmations/main';
+const TRANSCRIPT_API = '/api/v1/speech/logs';
 const ASR_API = '/api/v1/speech/recognize';
 
 /* ==========================
@@ -531,9 +531,9 @@ function initReadVoice(){
 ───────────────────────────────────────────── */
 
 // 서버 엔드포인트: 백엔드 실제 API와 매칭
-const BOOKMARK_EXISTS_API = '/api/v1/bookmarks/check?sentence=';  // 해당 문구가 북마크에 존재하는지 체크하는 서버
-const BOOKMARK_ADD_API    = '/api/v1/bookmarks/add';             // 해당 문구를 북마크에 등록하는 서버
-const BOOKMARK_DEL_API    = '/api/v1/bookmarks/remove';          // 해당 문구를 북마크에서 지우는 서버
+const BOOKMARK_EXISTS_API = '/api/v1/bookmarks/check?sentence=';
+const BOOKMARK_ADD_API    = '/api/v1/bookmarks/add';
+const BOOKMARK_DEL_API    = '/api/v1/bookmarks/remove';
 
 /* 🔐 JWT 토큰 → Authorization 헤더 자동 부착 공통 래퍼 */
 function getJwtToken() {
@@ -791,9 +791,11 @@ function initBookmarkView(){
   */
 }
 
-// ===== 커스텀문장 API 엔드포인트 =====
-const CUSTOM_LIST_ME_API    = '/api/v1/bookmarks';                    // 커스텀 문장 리스트 불러오는 서버 (JWT 인증)
-const CUSTOM_LIST_BYID_API  = (uid) => `/api/v1/bookmarks`;           // 커스텀 문장 리스트 불러오는 서버 (쿠키 id 기반)
+// ===== 북마크/커스텀문장 API 엔드포인트 =====
+const BOOKMARK_LIST_ME_API = '/api/v1/bookmarks';                     // JWT 인증
+const BOOKMARK_LIST_BYID_API = (uid) => `/api/v1/bookmarks`;          // 쿠키 id 기반
+const CUSTOM_LIST_ME_API    = '/api/v1/bookmarks';                    // JWT 인증 (북마크와 동일)
+const CUSTOM_LIST_BYID_API  = (uid) => `/api/v1/bookmarks`;           // 쿠키 id 기반
 
 function initCustomView(){
   const quoteEl = app.querySelector('#quoteText');       // 커스텀 문장 표시 영역
