@@ -85,18 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // ========================
 // 서버 설정
 // ========================
-const API_URL = 'survey.php'; // 백엔드 URL여기에 넣어주시면 됩니다. 지금은 임시로 php파일 넣어뒀는데 작동은 잘 되네요!
-
-// ✅ 톤 옵션을 가져올 API (예시: 필요에 맞게 수정)
-const TONES_API = 'survey.php?action=tones'; // or '/api/survey/tones'
-
-// ✅ 서버 실패 시 사용할 기본 톤 옵션
-const DEFAULT_TONES = [
-  { value: 'tone1', label: '“나는 어떤 어려움 속에서도 희망을 찾을 수 있어.”' },
-  { value: 'tone2', label: '“어려워도 괜찮아, 나는 희망을 찾을 수 있을 거야.”' },
-  { value: 'tone3', label: '“어떤 어려움도 나를 꺾을 수 없다, 나는 반드시 희망을 찾아낼 것이다.”' },
-];
-
+const API_URL = '/api/v1/affirmations/tone-examples'; // 사용자가 선택한 '문제'와 '톤'을 전송할 주소
 
 // ========================
 // 아래가 서버 전송용 함수
@@ -169,7 +158,7 @@ function initChoiceStep(){
 
   list.forEach(btn => {
     btn.addEventListener('click', () => {
-      const val = String(btn.dataset.value);
+      const val = Number(btn.dataset.value);
       const idx = selected.indexOf(val);
       if (idx > -1){
         selected.splice(idx,1);
@@ -209,101 +198,39 @@ function initChoiceStep(){
   updateUI();
 }
 
-// ✅ 서버 응답을 표준화: [{value, label}] 형태로 변환
-function normalizeTones(data){
-  // 허용 포맷 예:
-  // 1) [{ value:'toneX', label:'문구' }, ...]
-  // 2) ['문구1','문구2',...]  -> value 자동 부여
-  // 3) { items: [...] }      -> items 사용
-  const src = Array.isArray(data) ? data : Array.isArray(data?.items) ? data.items : [];
-  const arr = src.map((item, i) => {
-    if (typeof item === 'string') {
-      return { value: `tone${i+1}`, label: item };
-    }
-    const v = item.value ?? item.id ?? `tone${i+1}`;
-    const l = item.label ?? item.text ?? String(item);
-    return { value: String(v), label: String(l) };
-  }).filter(x => x.label?.trim());
-  return arr;
-}
-
-// ✅ 서버에서 톤 옵션 받아와서 #toneList에 주입 (실패 시 DEFAULT_TONES)
-async function populateToneOptions(root){
-  const listEl = root.querySelector('#toneList');
-  if (!listEl) return;
-
-  // 로딩 상태 표시(선택)
-  listEl.innerHTML = `
-    <li style="opacity:.7;padding:6px 0">불러오는 중…</li>
-  `;
-
-  let tones = [];
-  try {
-    const res = await fetch(TONES_API, {
-      method: 'GET',
-      headers: { 'X-Requested-With':'XMLHttpRequest', 'Accept':'application/json' },
-      cache: 'no-store',
-      credentials: 'same-origin'
-    });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json().catch(()=> ({}));
-    tones = normalizeTones(data);
-    if (!tones.length) throw new Error('empty');
-  } catch (e) {
-    // 실패 → 기본 옵션 폴백
-    console.warn('tones load failed, fallback to defaults:', e);
-    tones = DEFAULT_TONES.slice();
-  }
-
-  // 렌더
-  listEl.innerHTML = tones.map(t =>
-    `<li><button type="button" class="opt" data-value="${t.value}">${t.label}</button></li>`
-  ).join('');
-}
-
-/* ========================
-   search3: 톤 단일 선택  (교체 버전)
-   - 서버에서 옵션 로드 → 실패 시 기본 3개로 폴백
-   - 이후 기존 선택/저장/다음단계 로직 그대로
-======================== */
+// ========================
+// search3: 톤 단일 선택
+// ========================
 function initToneStep(){
   const root = stage?.querySelector('#toneStep');
   if(!root) return;
 
+  const list = [...root.querySelectorAll('.opt')];
   const prev = root.querySelector('#prevStep');
   const next = root.querySelector('#toNext');
 
-  // next 버튼 초기 비활성
-  enableNext(false);
+  // 복구
+  const saved = window.__SURVEY__?.tone || null;
+  if (saved) {
+    const btn = list.find(b => b.dataset.value === saved);
+    btn && btn.classList.add('selected');
+    enableNext(true);
+  } else {
+    enableNext(false);
+  }
 
-  // 1) 옵션을 서버에서 받아와 주입(폴백 포함)
-  populateToneOptions(root).then(() => {
-    // 2) 옵션이 주입된 뒤에 이벤트 바인딩/복구
-    const list = [...root.querySelectorAll('.opt')];
-
-    // 복구
-    const saved = window.__SURVEY__?.tone || null;
-    if (saved) {
-      const btn = list.find(b => b.dataset.value === saved);
-      btn && btn.classList.add('selected');
+  list.forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      list.forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      window.__SURVEY__ = window.__SURVEY__ || {};
+      window.__SURVEY__.tone = btn.dataset.value; // 즉시 로컬 저장
       enableNext(true);
-    }
-
-    list.forEach(btn=>{
-      btn.addEventListener('click', ()=>{
-        list.forEach(b => b.classList.remove('selected'));
-        btn.classList.add('selected');
-        window.__SURVEY__ = window.__SURVEY__ || {};
-        window.__SURVEY__.tone = btn.dataset.value; // 즉시 로컬 저장
-        enableNext(true);
-      });
     });
   });
 
-  // 이전 단계
   prev && prev.addEventListener('click', (e)=>{ e.preventDefault(); swapInner('search2.html'); });
 
-  // 다음 단계
   next && next.addEventListener('click', async (e)=>{
     e.preventDefault();
     if (next.classList.contains('is-disabled')) return;
