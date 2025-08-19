@@ -1,7 +1,3 @@
-    document.getElementById('goBack').addEventListener('click', () => {
-    window.location.href = 'setting.html';
-  });
-  
   (function(){
     const agree = document.getElementById('agreeWithdraw');
     const btn = document.getElementById('withdrawBtn');
@@ -17,20 +13,18 @@
 
     btn.addEventListener('click', async (e) => {
       if (btn.disabled) return;
-      // TODO: 실제 탈퇴 API로 교체하세요.
-      // 예) POST /api/account/withdraw  (세션/쿠키 사용 시 credentials 포함)
+      // 탈퇴 로직 처리해주는 서버
       try {
         btn.textContent = '처리 중...';
-        /* const res = await fetch('/api/account/withdraw', {
-          method: 'POST',
+        const res = await fetch('/api/users/me/withdraw', {
+          method: 'DELETE',
           headers: { 'Content-Type': 'application/json' },
-          // credentials: 'include', // 세션 쿠키 사용 시 주석 제거
-          body: JSON.stringify({ reason: 'user_request' })
+          credentials: 'include'
         });
         if (!res.ok) throw new Error('탈퇴 요청 실패');
-        // 성공 처리: 알림 후 메인 이동 등 */
+        
         alert('탈퇴가 완료되었습니다.');
-         location.href = 'withdraw_done.html';
+        location.href = 'withdraw_done.html';
       } catch (err) {
         alert('잠시 후 다시 시도해 주세요.');
         console.error(err);

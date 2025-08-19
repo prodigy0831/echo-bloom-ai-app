@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>Echobloom 마이페이지</title>
+<title>모바일 시작 화면</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
 <style>
   @font-face { 
@@ -170,7 +170,6 @@
   transition: opacity .2s, transform .2s; z-index: 9999;
 }
 .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
-.tone-link{ cursor:pointer; text-decoration:none; }
 
 
 @media (max-width: 360px){
@@ -224,9 +223,7 @@
     <div class="chips" id="problemChips" aria-live="polite">
       <!-- JS가 칩 3개 채움 -->
     </div>
-    <div class="muted">
-      <a href="change_problems.html" id="goChangeTone" class="muted tone-link">✎ 다른 문제를 해결하고 싶어요.</a>
-    </div>
+    <div class="muted">✎ 다른 문제를 해결하고 싶어요.</div>
   </section>
 
   <!-- 2) 톤 -->
@@ -237,7 +234,7 @@
 
     <div class="tone-wrap" aria-live="polite">
       <div id="toneChip" class="tone-chip">로딩 중…</div>
-      <a href="change_tone.html" id="goChangeTone" class="muted tone-link">✎ 톤을 바꾸고 싶어요.</a>
+      <div class="muted">✎ 톤을 바꾸고 싶어요.</div>
     </div>
   </section>
 
