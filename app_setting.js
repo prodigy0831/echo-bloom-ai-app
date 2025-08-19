@@ -71,7 +71,7 @@ document.getElementById('goNotice')?.addEventListener('click', async (e) => {
     // 1) 서버에 로그아웃 요청 (권장)
     let serverOk = false;
     try {
-      const res = await fetch('/logout.php', {
+      const res = await fetch('/auth/kakao/logout', { // 로그아웃 로직 처리해주는 서버
         method: 'POST',
         credentials: 'include',
         headers: { 'X-Requested-With':'XMLHttpRequest' }

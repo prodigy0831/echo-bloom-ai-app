@@ -69,8 +69,8 @@ async function initMyPage(){
   toneEl.textContent = '로딩 중…';
 
   try{
-    // ========== 실제 서버 API 엔드포인트로 바꿔주세요 ============
-    const res = await fetch('/api/mypage', { credentials:'include' });
+    // DB에 저장된 사용자의 문제/톤을 불러오는 서버 (UserCategoryBridgeRepository에서 조회)
+    const res = await fetch('/api/users/me/categories', { credentials:'include' });
     if(!res.ok) throw new Error('HTTP '+res.status);
     const data = await res.json();
 
@@ -119,7 +119,7 @@ function summarize(str, limit){
 /* ================= 링크 공유 관련 함수 =================== */
 (function(){
   // ★ 원하는 링크로 바꾸세요
-  const SHARE_URL = 'https://www.우리메인홈도메인.kr/';
+  const SHARE_URL = 'https://www.echobloom.co.kr';
 
   const card = document.getElementById('shareCard');
   const toast = document.getElementById('toast');
