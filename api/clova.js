@@ -2,17 +2,16 @@
 // GitHub Pages에서 Clova AI 사용을 위한 CORS 우회 프록시
 
 export default async function handler(req, res) {
-  // CORS 헤더 설정 - 모든 도메인 허용 (개발용)
+  // CORS 헤더 설정 - 모든 도메인 허용
   res.setHeader('Access-Control-Allow-Origin', '*');
-  
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.setHeader('Access-Control-Max-Age', '86400'); // 24시간 캐시
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+  res.setHeader('Access-Control-Max-Age', '86400');
   
   // Preflight 요청 처리
   if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
+    console.log('🔧 OPTIONS 요청 처리됨');
+    return res.status(200).end();
   }
   
   // POST 요청만 허용
