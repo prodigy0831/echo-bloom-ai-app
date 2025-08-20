@@ -90,3 +90,25 @@
     </button>
   </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const goDeeper2 = document.getElementById('goDeeper2');
+  if (goDeeper2) {
+    goDeeper2.addEventListener('click', (e) => {
+      e.preventDefault();
+      console.log('🎯 intro2 다음 버튼 클릭됨');
+      window.location.href = 'intro3.html';
+    });
+  }
+  
+  const goBack = document.getElementById('goBack');
+  if (goBack) {
+    goBack.addEventListener('click', (e) => {
+      e.preventDefault();
+      console.log('🔙 뒤로 가기 버튼 클릭됨');
+      window.location.href = '../main.html';
+    });
+  }
+});
+</script>

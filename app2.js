@@ -156,23 +156,41 @@ function initChoiceStep(){
     });
   };
 
-  list.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const val = Number(btn.dataset.value);
-      const idx = selected.indexOf(val);
-      if (idx > -1){
-        selected.splice(idx,1);
-        btn.classList.remove('selected');
-      } else {
-        if (selected.length >= MAX) return;
-        selected.push(val);
-        btn.classList.add('selected');
+  // 이벤트 델리게이션 방식으로 변경
+  root.addEventListener('click', (e) => {
+    const btn = e.target.closest('.opt');
+    if (!btn) return;
+    
+    e.preventDefault(); // 기본 동작 방지
+    e.stopPropagation(); // 이벤트 전파 방지
+    
+    console.log('🔘 문제 선택 버튼 클릭:', btn.dataset.value);
+    
+    const val = Number(btn.dataset.value);
+    const idx = selected.indexOf(val);
+    
+    if (idx > -1){
+      // 이미 선택된 항목 - 해제
+      console.log('❌ 선택 해제:', val);
+      selected.splice(idx,1);
+      btn.classList.remove('selected');
+    } else {
+      // 새로 선택
+      if (selected.length >= MAX) {
+        console.log('⚠️ 최대 선택 개수 초과');
+        return;
       }
-      // 즉시 로컬 저장
-      window.__SURVEY__ = window.__SURVEY__ || {};
-      window.__SURVEY__.problems = selected.slice();
-      updateUI();
-    });
+      console.log('✅ 새로 선택:', val);
+      selected.push(val);
+      btn.classList.add('selected');
+    }
+    
+    // 즉시 로컬 저장
+    window.__SURVEY__ = window.__SURVEY__ || {};
+    window.__SURVEY__.problems = selected.slice();
+    
+    console.log('📊 현재 선택된 항목들:', selected);
+    updateUI();
   });
 
   next?.addEventListener('click', async (e)=>{
@@ -265,17 +283,6 @@ function initToneStep(){
 function initFinalStep(){
   const root = stage?.querySelector('#finalStep');
   if(!root) return;
-
-  // 디버그 표시 (선택)
-  const dbgProblems = root.querySelector('#debugProblems');
-  const dbgTone     = root.querySelector('#debugTone');
-  if (dbgProblems && dbgTone) {
-    const problems = (window.__SURVEY__ && Array.isArray(window.__SURVEY__.problems))
-      ? window.__SURVEY__.problems : [];
-    const tone = (window.__SURVEY__ && window.__SURVEY__.tone) ? window.__SURVEY__.tone : '(없음)';
-    dbgProblems.textContent = problems.length ? problems.join(', ') : '(없음)';
-    dbgTone.textContent = tone;
-  }
 
   const start = root.querySelector('#startNow');
   if (!start) return;

@@ -1,44 +1,30 @@
-# OS files
+# 로그 파일
+*.log
+clova-proxy.log
+
+# 임시 파일
+*.tmp
+*.temp
+
+# 시스템 파일
 .DS_Store
 Thumbs.db
-Desktop.ini
 
-# Editors / IDE
+# IDE 파일
 .vscode/
 .idea/
-*.code-workspace
-.vs/
-
-# Logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-
-# Dependencies (쓰면)
-node_modules/
-
-# Build / Output
-dist/
-build/
-out/
-.tmp/
-.temp/
-
-# Caches
-coverage/
-.cache/
-.parcel-cache/
-.eslintcache
-.stylelintcache
-.sass-cache/
-
-# Env / secrets
-.env
-.env.*
-!.env.example
-
-# Misc
 *.swp
+*.swo
+
+# 백업 파일
 *~
+*.bak
+
+# 테스트 파일
+test-*.html
+debug.html
+quick-*.html
+
+# 환경설정 파일 (API 키 포함)
+.env
+config.json

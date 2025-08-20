@@ -32,6 +32,8 @@
       font-family:'HakgyoansimNadeuriTTF-B', Pretendard, sans-serif;
       text-align: center; cursor: pointer;
       transition: transform .06s ease, background .15s ease, color .15s ease, border-color .15s ease;
+      pointer-events: auto; /* 클릭 이벤트 명시적 허용 */
+      user-select: none; /* 텍스트 선택 방지 */
     }
     .opt:hover {
       background: var(--accent);  /* 버튼색을 포인트색으로 */

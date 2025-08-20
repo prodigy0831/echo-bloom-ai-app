@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Echo Bloom - AI 기반 긍정 확언 앱</title>
+    <style>
+        @font-face { 
+            font-family: 'HakgyoansimNadeuriTTF-B';
+            src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/2408-5@1.0/HakgyoansimNadeuriTTF-B.woff2') format('woff2');
+            font-weight: 700; font-style: normal;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'HakgyoansimNadeuriTTF-B', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #1a7a29 0%, #2d8f3a 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        .container {
+            text-align: center;
+            max-width: 400px;
+            padding: 40px 20px;
+        }
+        
+        .logo {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+        
+        .title {
+            font-size: 2.5rem;
+            margin-bottom: 16px;
+            font-weight: 700;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 40px;
+            opacity: 0.9;
+            font-weight: 400;
+        }
+        
+        .start-button {
+            background: rgba(255,255,255,0.15);
+            border: 2px solid rgba(255,255,255,0.6);
+            color: white;
+            padding: 16px 32px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            backdrop-filter: blur(10px);
+        }
+        
+        .start-button:hover {
+            background: rgba(255,255,255,0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+        
+        .features {
+            margin-top: 40px;
+            text-align: left;
+        }
+        
+        .feature {
+            margin: 12px 0;
+            font-size: 0.95rem;
+            opacity: 0.85;
+        }
+        
+        .feature-icon {
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🌸</div>
+        <h1 class="title">Echo Bloom</h1>
+        <p class="subtitle">AI 기반 맞춤형 긍정 확언 앱</p>
+        
+        <a href="main.html" class="start-button">시작하기</a>
+        
+        <div class="features">
+            <div class="feature">
+                <span class="feature-icon">🎯</span>
+                개인 맞춤형 확언 생성
+            </div>
+            <div class="feature">
+                <span class="feature-icon">🤖</span>
+                Clova AI 기반 자연스러운 문구
+            </div>
+            <div class="feature">
+                <span class="feature-icon">🎤</span>
+                음성 인식으로 정확도 측정
+            </div>
+            <div class="feature">
+                <span class="feature-icon">🔖</span>
+                북마크 및 설정 관리
+            </div>
+        </div>
+    </div>
+</body>
+</html>

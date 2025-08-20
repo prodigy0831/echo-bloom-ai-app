@@ -82,7 +82,8 @@ function bindLocalEvents() {
   const goBack = app.querySelector('#goBack');
   if (goBack) {
     goBack.addEventListener('click', (e) => {
-      location.href = 'main.html';
+      // 메인 화면으로 돌아가기
+      location.href = '/main.html';
     });
   }
 }
@@ -91,18 +92,17 @@ function bindLocalEvents() {
 // 초기 메인 화면 버튼 이벤트
 document.getElementById('startKakao')?.addEventListener('click', async () => {
   try {
-    // 백엔드에서 카카오 로그인 URL 받아오기
-    const response = await fetch('/auth/kakao/login-url');
-    if (!response.ok) throw new Error('Failed to get login URL');
-    
-    const loginUrl = await response.text();
-    window.location.href = loginUrl;
+    // 임시: 백엔드 없이도 동작하도록 수정
+    // 실제 카카오 로그인 대신 홈 화면으로 이동
+    console.log('카카오 로그인 시뮬레이션');
+    loadView('views/intro.html');
   } catch (error) {
-    console.error('카카오 로그인 URL 생성 실패:', error);
-    alert('로그인 준비 중 오류가 발생했습니다. 다시 시도해주세요.');
+    console.error('카카오 로그인 오류:', error);
+    // 에러가 발생해도 홈 화면으로 이동
+    loadView('views/intro.html');
   }
 });
 document.getElementById('skipLink')?.addEventListener('click', (e) => {
   e.preventDefault();
-  loadView('main.html'); // 오버레이 필요 없으면 data-overlay 생략
+  loadView('views/intro.html'); // 인트로 화면으로 이동
 });

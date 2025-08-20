@@ -57,3 +57,25 @@
     </button>
   </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const goDeeper = document.getElementById('goDeeper');
+  if (goDeeper) {
+    goDeeper.addEventListener('click', (e) => {
+      e.preventDefault();
+      console.log('🎯 intro 다음 버튼 클릭됨');
+      window.location.href = 'intro2.html';
+    });
+  }
+  
+  const goBack = document.getElementById('goBack');
+  if (goBack) {
+    goBack.addEventListener('click', (e) => {
+      e.preventDefault();
+      console.log('🔙 뒤로 가기 버튼 클릭됨');
+      window.location.href = '../main.html';
+    });
+  }
+});
+</script>

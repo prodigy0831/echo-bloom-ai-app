@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Echo Bloom - 기능 테스트</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.6; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .test-result { margin: 10px 0; padding: 10px; background: #f5f5f5; border-radius: 3px; }
+        button { padding: 10px 15px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .success { color: green; }
+        .error { color: red; }
+        input[type="text"] { padding: 5px; margin: 5px; width: 200px; }
+        select { padding: 5px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>🌸 Echo Bloom - JavaScript 백엔드 테스트</h1>
+    
+    <div class="test-section">
+        <h2>1. 기본 기능 테스트</h2>
+        <button onclick="testBasicFunctions()">기본 기능 테스트</button>
+        <div id="basicTest" class="test-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. 확언 생성 테스트</h2>
+        <label>문제 선택:</label><br>
+        <input type="checkbox" name="problems" value="1"> 자신감 부족
+        <input type="checkbox" name="problems" value="2"> 불안감
+        <input type="checkbox" name="problems" value="3"> 우울감<br>
+        
+        <label>톤 선택:</label>
+        <select id="toneSelect">
+            <option value="">선택하세요</option>
+            <option value="1">따뜻하고 부드러운</option>
+            <option value="2">힘차고 강한</option>
+            <option value="3">차분하고 안정적인</option>
+        </select><br>
+        
+        <button onclick="testAffirmationGeneration()">확언 생성 테스트</button>
+        <div id="affirmationTest" class="test-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. 음성 인식 테스트</h2>
+        <input type="text" id="testSentence" placeholder="테스트할 문장" value="나는 할 수 있어">
+        <button onclick="testSpeechRecognition()">음성 인식 테스트</button>
+        <div id="speechTest" class="test-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>4. 데이터 저장 테스트</h2>
+        <input type="text" id="bookmarkText" placeholder="북마크할 문장" value="나는 소중한 사람이야">
+        <button onclick="testBookmark()">북마크 추가</button>
+        <button onclick="testGetBookmarks()">북마크 조회</button>
+        <div id="bookmarkTest" class="test-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>5. 전체 통합 테스트</h2>
+        <button onclick="runAllTests()">모든 테스트 실행</button>
+        <div id="allTests" class="test-result"></div>
+    </div>
+
+    <!-- JavaScript 백엔드 로드 -->
+    <script src="js-backend.js"></script>
+    <script src="speech-recognition.js"></script>
+    <script src="mock-server.js"></script>
+    <script src="app-enhanced.js"></script>
+
+    <script>
+        // 테스트 함수들
+        async function testBasicFunctions() {
+            const result = document.getElementById('basicTest');
+            result.innerHTML = '테스트 중...';
+            
+            try {
+                // 백엔드 인스턴스 확인
+                if (!window.echoBloomBackend) {
+                    throw new Error('백엔드 인스턴스가 없습니다');
+                }
+                
+                // 사용자 인증 테스트
+                const authResult = await window.echoBloomBackend.authenticateUser();
+                
+                // 카테고리 데이터 확인
+                const problems = window.echoBloomBackend.getCategories('PROBLEM');
+                const tones = window.echoBloomBackend.getCategories('TONE');
+                
+                result.innerHTML = `
+                    <div class="success">✅ 기본 기능 테스트 성공!</div>
+                    <p>사용자 인증: ${authResult.success ? '성공' : '실패'}</p>
+                    <p>문제 카테고리: ${problems.length}개</p>
+                    <p>톤 카테고리: ${tones.length}개</p>
+                    <p>현재 사용자: ${authResult.user.name}</p>
+                `;
+            } catch (error) {
+                result.innerHTML = `<div class="error">❌ 테스트 실패: ${error.message}</div>`;
+            }
+        }
+
+        async function testAffirmationGeneration() {
+            const result = document.getElementById('affirmationTest');
+            result.innerHTML = '테스트 중...';
+            
+            try {
+                const checkedProblems = Array.from(document.querySelectorAll('input[name="problems"]:checked'))
+                    .map(cb => parseInt(cb.value));
+                const selectedTone = parseInt(document.getElementById('toneSelect').value) || null;
+                
+                if (checkedProblems.length === 0) {
+                    checkedProblems.push(1); // 기본값
+                }
+                
+                const affirmations = await window.echoBloomBackend.generateAffirmations(checkedProblems, selectedTone);
+                
+                result.innerHTML = `
+                    <div class="success">✅ 확언 생성 성공!</div>
+                    <p><strong>확언 1:</strong> ${affirmations.affirmation1}</p>
+                    <p><strong>확언 2:</strong> ${affirmations.affirmation2}</p>
+                    <p><strong>확언 3:</strong> ${affirmations.affirmation3}</p>
+                `;
+            } catch (error) {
+                result.innerHTML = `<div class="error">❌ 테스트 실패: ${error.message}</div>`;
+            }
+        }
+
+        async function testSpeechRecognition() {
+            const result = document.getElementById('speechTest');
+            const sentence = document.getElementById('testSentence').value;
+            
+            if (!sentence) {
+                result.innerHTML = '<div class="error">❌ 테스트할 문장을 입력하세요</div>';
+                return;
+            }
+            
+            result.innerHTML = '음성 인식 테스트 중...';
+            
+            try {
+                // Mock 음성 인식 결과 생성
+                const speechResult = window.echoBloomBackend.generateMockSpeechResult(sentence);
+                
+                result.innerHTML = `
+                    <div class="success">✅ 음성 인식 테스트 성공!</div>
+                    <p><strong>원본:</strong> ${speechResult.originalSentence}</p>
+                    <p><strong>인식 결과:</strong> ${speechResult.recognizedText}</p>
+                    <p><strong>유사도:</strong> ${(speechResult.similarity * 100).toFixed(1)}%</p>
+                    <p><strong>점수:</strong> ${speechResult.score}점</p>
+                    <p><strong>피드백:</strong> ${speechResult.feedback}</p>
+                    ${speechResult.note ? `<p><em>${speechResult.note}</em></p>` : ''}
+                `;
+            } catch (error) {
+                result.innerHTML = `<div class="error">❌ 테스트 실패: ${error.message}</div>`;
+            }
+        }
+
+        async function testBookmark() {
+            const result = document.getElementById('bookmarkTest');
+            const text = document.getElementById('bookmarkText').value;
+            
+            if (!text) {
+                result.innerHTML = '<div class="error">❌ 북마크할 문장을 입력하세요</div>';
+                return;
+            }
+            
+            try {
+                const bookmark = await window.echoBloomBackend.addBookmark(text);
+                result.innerHTML = `<div class="success">✅ 북마크 추가 성공! ID: ${bookmark.id}</div>`;
+            } catch (error) {
+                result.innerHTML = `<div class="error">❌ 테스트 실패: ${error.message}</div>`;
+            }
+        }
+
+        async function testGetBookmarks() {
+            const result = document.getElementById('bookmarkTest');
+            
+            try {
+                const bookmarks = await window.echoBloomBackend.getBookmarks();
+                result.innerHTML = `
+                    <div class="success">✅ 북마크 조회 성공!</div>
+                    <p>총 ${bookmarks.length}개의 북마크</p>
+                    ${bookmarks.map(b => `<p>• ${b.sentence}</p>`).join('')}
+                `;
+            } catch (error) {
+                result.innerHTML = `<div class="error">❌ 테스트 실패: ${error.message}</div>`;
+            }
+        }
+
+        async function runAllTests() {
+            const result = document.getElementById('allTests');
+            result.innerHTML = '전체 테스트 실행 중...';
+            
+            let passed = 0;
+            let total = 4;
+            
+            try {
+                // 1. 기본 기능
+                await window.echoBloomBackend.authenticateUser();
+                passed++;
+                
+                // 2. 확언 생성
+                await window.echoBloomBackend.generateAffirmations([1], 1);
+                passed++;
+                
+                // 3. 음성 인식
+                window.echoBloomBackend.generateMockSpeechResult('테스트');
+                passed++;
+                
+                // 4. 데이터 저장
+                await window.echoBloomBackend.addBookmark('테스트 북마크');
+                passed++;
+                
+                result.innerHTML = `
+                    <div class="success">✅ 전체 테스트 완료!</div>
+                    <p>통과: ${passed}/${total}</p>
+                    <p>성공률: ${Math.round((passed/total)*100)}%</p>
+                `;
+            } catch (error) {
+                result.innerHTML = `
+                    <div class="error">❌ 전체 테스트 실패</div>
+                    <p>통과: ${passed}/${total}</p>
+                    <p>오류: ${error.message}</p>
+                `;
+            }
+        }
+
+        // 페이지 로드시 기본 테스트 실행
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                testBasicFunctions();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

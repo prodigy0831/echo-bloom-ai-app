@@ -207,7 +207,11 @@ function getQuoteEl(){
 
 function setQuote(text){
   const el = getQuoteEl();
-  if (!el) return;
+  if (!el) {
+    console.warn('⚠️ #quoteText 요소를 찾을 수 없습니다');
+    return;
+  }
+  console.log('💬 확언 텍스트 설정:', text);
   el.innerHTML = text.replace(/\n/g, '<br/>');
 }
 function showFallback(){
@@ -221,66 +225,125 @@ function fetchWithTimeout(url, opts={}, ms=5000){
   ]);
 }
 
+// 초기 로딩 플래그
+let initialQuoteLoaded = false;
+
 // ✅ 초기 진입 시 자동으로 한 번 불러오기
 async function loadInitialQuote(){
+  if (initialQuoteLoaded) {
+    console.log('⏭️ 이미 초기 확언이 로드됨 - 건너뛰기');
+    return;
+  }
+  
+  initialQuoteLoaded = true;
+  
   // (옵션) 로딩 표시
   setQuote('불러오는 중…');
+  console.log('📝 초기 확언 로드 시작:', QUOTE_API);
 
   try {
-    const res = await fetchWithTimeout(QUOTE_API, {
+    const res = await fetch(QUOTE_API, {
       method: 'GET',
       headers: { 'Accept': 'application/json' },
       cache: 'no-store',
       credentials: 'same-origin'
     });
+    
+    console.log('📡 응답 상태:', res.status, res.statusText);
+    
     if (!res.ok) throw new Error('bad-status ' + res.status);
     const data = await res.json().catch(() => ({}));
+    
+    console.log('📄 받은 데이터:', data);
+    
     const text = (data && typeof data.text === 'string') ? data.text.trim() : '';
-    if (text) setQuote(text);
-    else showFallback();
+    if (text) {
+      console.log('✅ 확언 텍스트 설정:', text);
+      setQuote(text);
+    } else {
+      console.log('⚠️ 빈 텍스트, 폴백 사용');
+      showFallback();
+    }
   } catch (e) {
+    console.error('❌ 초기 확언 로드 실패:', e);
+    initialQuoteLoaded = false; // 실패시 다시 시도 가능하도록
     showFallback();
-    console.error('initial quote load failed:', e);
   }
 }
 
 // 기존 next 버튼용 로더(유지)
 async function loadNextQuote(btn){
+  console.log('🚨 loadNextQuote 호출됨! 호출 스택:', new Error().stack);
+  
+  if (!btn) {
+    console.error('❌ btn이 없음 - 잘못된 호출');
+    return;
+  }
+  
   btn.disabled = true;
   btn.setAttribute('aria-busy', 'true');
+  
+  console.log('🔄 다음 확언 로드 시작');
+  
   try {
-    const res = await fetchWithTimeout(QUOTE_API, {
+    const res = await fetch(QUOTE_API, {
       method: 'GET',
       headers: { 'Accept': 'application/json' },
       cache: 'no-store',
       credentials: 'same-origin'
     });
+    
+    console.log('📡 다음 확언 응답 상태:', res.status);
+    
     if (!res.ok) throw new Error('bad-status ' + res.status);
     const data = await res.json().catch(() => ({}));
+    
+    console.log('📄 다음 확언 데이터:', data);
+    
     const text = (data && typeof data.text === 'string') ? data.text.trim() : '';
-    if (text) setQuote(text);
-    else showFallback();
+    if (text) {
+      console.log('✅ 다음 확언 설정:', text);
+      setQuote(text);
+    } else {
+      console.log('⚠️ 빈 텍스트, 폴백 사용');
+      showFallback();
+    }
   } catch (e) {
+    console.error('❌ 다음 확언 로드 실패:', e);
     showFallback();
-    console.error('quote load failed:', e);
   } finally {
     btn.disabled = false;
     btn.removeAttribute('aria-busy');
   }
 }
 
-// next 버튼 핸들러(유지)
+// next 버튼 핸들러(유지) - 무한 루프 방지
+let isLoadingNextQuote = false;
 document.addEventListener('click', (e) => {
   const btn = e.target.closest('button.next');
   if (!btn) return;
-  loadNextQuote(btn);
+  
+  if (isLoadingNextQuote) {
+    console.log('⏸️ 이미 확언 로딩 중 - 요청 무시');
+    return;
+  }
+  
+  isLoadingNextQuote = true;
+  loadNextQuote(btn).finally(() => {
+    isLoadingNextQuote = false;
+  });
 });
 
-// 🔔 페이지 로드(혹은 스크립트 실행) 시 즉시 1회 호출
-// 스크립트를 <head defer>로 넣었거나 </body> 직전에 넣었다면 아래 한 줄이면 충분
-loadInitialQuote();
-// 만약 타이밍 이슈가 있다면 아래처럼 바꿔도 됨:
-// window.addEventListener('DOMContentLoaded', loadInitialQuote);
+// 🔔 DOM과 Mock Server 준비 후 실행
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('📋 DOM 로드 완료');
+  
+  // Mock Server 준비 후 실행하도록 지연
+  setTimeout(() => {
+    console.log('⏰ 지연 후 초기 확언 로드 시작');
+    loadInitialQuote();
+  }, 200);
+});
 
 
 /* ==========================
@@ -405,15 +468,33 @@ function initReadVoice(){
   const isMatch = (expected, spoken) => {
     const A = normalize(expected);
     const B = normalize(spoken);
-    if (!A || !B) return false;
-    if (A === B) return true;
+    console.log('🎯 음성 비교:', { expected: A, spoken: B });
+    
+    if (!A || !B) {
+      console.log('❌ 빈 텍스트로 매칭 실패');
+      return false;
+    }
+    
+    if (A === B) {
+      console.log('✅ 완전 일치!');
+      return true;
+    }
+    
     // 포함(부분 일치) 허용
-    if (A.includes(B) || B.includes(A)) return true;
-    // 유사도 90% 이상 허용
+    if (A.includes(B) || B.includes(A)) {
+      console.log('✅ 부분 일치!');
+      return true;
+    }
+    
+    // 유사도 계산 (기준을 70%로 낮춤)
     const dist = levenshtein(A, B);
     const maxLen = Math.max(A.length, B.length);
     const sim = 1 - dist / Math.max(1, maxLen);
-    return sim >= 0.9;
+    console.log(`📊 유사도: ${(sim * 100).toFixed(1)}%`);
+    
+    const isSuccessful = sim >= 0.7; // 90%에서 70%로 낮춤
+    console.log(isSuccessful ? '✅ 유사도 통과!' : '❌ 유사도 부족');
+    return isSuccessful;
   };
 
   // ---------- 모달 ----------
@@ -447,23 +528,38 @@ function initReadVoice(){
     document.body.appendChild(wrap);
 
     if (ok) {
-      wrap.querySelector('#modal-ok').addEventListener('click', () => {
-        wrap.remove();
-        // 일치면 correct.html로
-        loadView('correct');
-      });
+      const okBtn = wrap.querySelector('#modal-ok');
+      if (okBtn) {
+        okBtn.addEventListener('click', () => {
+          wrap.remove();
+          // 일치면 correct.html로
+          loadView('correct');
+        });
+      }
     } else {
-      wrap.querySelector('#modal-retry').addEventListener('click', () => {
-        wrap.remove();
-        onRetry && onRetry();
-      });
-      wrap.querySelector('#modal-home').addEventListener('click', () => {
-        // 홈으로 (초기 화면 복귀)
-        window.location.reload();
-      });
-      wrap.querySelector('#modal-close').addEventListener('click', () => {
-        wrap.remove();
-      });
+      const retryBtn = wrap.querySelector('#modal-retry');
+      const homeBtn = wrap.querySelector('#modal-home');
+      const closeBtn = wrap.querySelector('#modal-close');
+      
+      if (retryBtn) {
+        retryBtn.addEventListener('click', () => {
+          wrap.remove();
+          onRetry && onRetry();
+        });
+      }
+      
+      if (homeBtn) {
+        homeBtn.addEventListener('click', () => {
+          // 홈으로 (초기 화면 복귀)
+          window.location.reload();
+        });
+      }
+      
+      if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+          wrap.remove();
+        });
+      }
     }
   }
 
@@ -486,9 +582,11 @@ function initReadVoice(){
     recog.onresult = (e) => {
       for (let i = e.resultIndex; i < e.results.length; i++) {
         const t = e.results[i][0].transcript;
+        console.log(`🎤 음성 인식 결과 [${i}]:`, t, e.results[i].isFinal ? '(최종)' : '(임시)');
         if (e.results[i].isFinal) finalText += t + ' ';
       }
       if (transcriptEl) transcriptEl.textContent = finalText.trim();
+      console.log('📝 현재 누적 텍스트:', finalText.trim());
     };
 
     recog.onend = () => {

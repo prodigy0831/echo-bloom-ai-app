@@ -95,3 +95,25 @@
 
   </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const goDeeper3 = document.getElementById('goDeeper3');
+  if (goDeeper3) {
+    goDeeper3.addEventListener('click', (e) => {
+      e.preventDefault();
+      console.log('🎯 intro3 다음 버튼 클릭됨');
+      window.location.href = 'intro4.html';
+    });
+  }
+  
+  const goBack = document.getElementById('goBack');
+  if (goBack) {
+    goBack.addEventListener('click', (e) => {
+      e.preventDefault();
+      console.log('🔙 뒤로 가기 버튼 클릭됨');
+      window.location.href = '../main.html';
+    });
+  }
+});
+</script>
