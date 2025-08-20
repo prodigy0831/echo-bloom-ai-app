@@ -144,42 +144,51 @@ class ClovaAIClient {
     console.log('📤 Clova 프록시 요청:', { requestId, prompt: prompt.substring(0, 100) + '...' });
 
     try {
-      // 프록시 서버로 요청
-      const proxyUrl = 'http://127.0.0.1:3002/clova-proxy';
-      const proxyData = {
-        ...requestBody,
-        apiKey: this.API_KEY,
-        requestId: requestId
-      };
+      // 로컬 환경에서는 프록시 사용, 배포 환경에서는 직접 호출
+      const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
       
-      const response = await fetch(proxyUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(proxyData)
-      });
-
-      if (!response.ok) {
-        throw new Error(`프록시 서버 오류: ${response.status} ${response.statusText}`);
-      }
-
-      const responseData = await response.json();
-      
-      if (responseData.success) {
-        console.log('✅ 프록시를 통한 Clova AI 응답 성공');
-        console.log('📄 Clova AI 응답 내용:', responseData.content);
+      if (isLocal) {
+        // 로컬 환경: 프록시 서버 사용
+        const proxyUrl = 'http://127.0.0.1:3002/clova-proxy';
+        const proxyData = {
+          ...requestBody,
+          apiKey: this.API_KEY,
+          requestId: requestId
+        };
         
-        // 빈 응답 체크
-        if (!responseData.content || responseData.content.trim() === '') {
+        const response = await fetch(proxyUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(proxyData)
+        });
+        
+        if (!response.ok) {
+          throw new Error(`프록시 서버 오류: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        if (!result.success) {
+          throw new Error(result.error || '프록시 호출 실패');
+        }
+        
+        if (!result.content || result.content.trim() === '') {
           console.warn('⚠️ Clova AI 응답이 비어있음');
           throw new Error('빈 응답');
         }
         
-        return responseData.content;
+        console.log('✅ Clova AI 응답 성공 (프록시):', result.content.substring(0, 100) + '...');
+        return result.content.trim();
+        
       } else {
-        throw new Error(`Clova API 오류: ${responseData.error}`);
+        // 배포 환경: CORS 문제로 직접 호출 불가, Mock 데이터 사용
+        console.log('🌐 배포 환경에서는 CORS 정책으로 Clova AI 직접 호출 불가');
+        console.log('📝 Mock 데이터로 폴백');
+        throw new Error('배포 환경에서는 프록시 서버 필요');
       }
+
+
       
     } catch (error) {
       console.error('❌ Clova API 호출 오류:', error);
