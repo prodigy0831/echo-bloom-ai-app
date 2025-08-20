@@ -1,0 +1,16 @@
+{
+  "name": "clova-proxy-vercel",
+  "version": "1.0.0",
+  "description": "Vercel proxy for Clova AI API to bypass CORS",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo 'No build step needed'",
+    "start": "echo 'Deployed on Vercel'"
+  },
+  "keywords": ["clova", "proxy", "vercel", "cors"],
+  "author": "Echo Bloom Team",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {}
+}
