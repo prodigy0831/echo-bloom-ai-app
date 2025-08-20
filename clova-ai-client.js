@@ -1,4 +1,5 @@
 // Clova AI Studio API 클라이언트
+// Vercel 프록시 연동 버전 - v1.1.0
 class ClovaAIClient {
   constructor() {
     // API 키는 실제 환경에서는 환경변수나 설정파일에서 가져와야 합니다
