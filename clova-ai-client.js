@@ -376,14 +376,19 @@ Zelda: "<문장>"
     const finalToneId = [1, 2, 3].includes(normalizedToneId) ? normalizedToneId : 2; // 기본값: 힘차고 강한
     
     console.log('🎨 사용할 톤 ID:', finalToneId, `(${this.getToneName(finalToneId)})`);
+    console.log('🔍 선택된 문제 IDs:', problemIds);
     
     // 선택된 문제들의 확언 수집
     let allAffirmations = [];
     
     problemIds.forEach(problemId => {
       const problemAffirmations = mockAffirmations[problemId];
+      console.log(`🎯 문제 ${problemId}:`, problemAffirmations ? '데이터 있음' : '데이터 없음');
       if (problemAffirmations && problemAffirmations[finalToneId]) {
+        console.log(`✅ 문제 ${problemId}, 톤 ${finalToneId} 확언:`, problemAffirmations[finalToneId]);
         allAffirmations.push(...problemAffirmations[finalToneId]);
+      } else {
+        console.log(`⚠️ 문제 ${problemId}, 톤 ${finalToneId} 확언 없음`);
       }
     });
     

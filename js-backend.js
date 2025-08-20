@@ -116,7 +116,12 @@ class EchoBloomBackend {
       throw new Error('문제 카테고리를 선택해주세요');
     }
 
-    console.log('🎯 확언 생성 시작:', { problems, tone });
+    // 톤 정규화: tone1, tone2, tone3 -> 1, 2, 3
+    if (typeof tone === 'string' && tone.startsWith('tone')) {
+      tone = parseInt(tone.replace('tone', ''));
+    }
+
+    console.log('🎯 확언 생성 시작:', { problems, tone: tone, normalizedTone: true });
 
     try {
       // Clova AI Client가 있으면 사용

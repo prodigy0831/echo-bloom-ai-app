@@ -122,9 +122,16 @@ class MockServer {
       
       // 톤 선택 처리
       if (requestData.tone) {
-        this.userData.tone = requestData.tone;
+        let tone = requestData.tone;
+        
+        // 톤 정규화: tone1, tone2, tone3 -> 1, 2, 3
+        if (typeof tone === 'string' && tone.startsWith('tone')) {
+          tone = parseInt(tone.replace('tone', ''));
+        }
+        
+        this.userData.tone = tone;
         this.saveUserData(); // localStorage에 저장
-        console.log('✅ 톤 선택 저장:', this.userData.tone);
+        console.log('✅ 톤 선택 저장 (정규화됨):', this.userData.tone);
         
         return new Response(JSON.stringify({
           success: true,
@@ -215,7 +222,13 @@ class MockServer {
       
       // 사용자 데이터가 없으면 테스트 데이터 사용
       const testProblems = this.userData.problems || [1, 3, 5]; // 활력부족, 불안감, 자신감부족
-      const testTone = this.userData.tone || 2; // Joy 톤
+      
+      // 톤 정규화: tone1, tone2, tone3 -> 1, 2, 3
+      let userTone = this.userData.tone;
+      if (typeof userTone === 'string' && userTone.startsWith('tone')) {
+        userTone = parseInt(userTone.replace('tone', ''));
+      }
+      const testTone = userTone || 1; // 기본값: 따뜻하고 부드러운 톤
       
       console.log('🎯 메인 확언 생성 요청:', { 
         problems: testProblems, 
@@ -283,7 +296,13 @@ class MockServer {
     try {
       // 저장된 사용자 데이터에서 문제와 톤 정보 가져오기
       const problemIds = this.userData.problems || [];
-      const toneId = this.userData.tone || 1;
+      
+      // 톤 정규화: tone1, tone2, tone3 -> 1, 2, 3
+      let userTone = this.userData.tone;
+      if (typeof userTone === 'string' && userTone.startsWith('tone')) {
+        userTone = parseInt(userTone.replace('tone', ''));
+      }
+      const toneId = userTone || 1;
       
       console.log('📋 현재 사용자 설정:', { problemIds, toneId });
       
@@ -492,13 +511,20 @@ class MockServer {
     
     try {
       const requestData = options.body ? JSON.parse(options.body) : {};
-      const tone = requestData.tone || requestData.selected;
+      let tone = requestData.tone || requestData.selected;
       
-      console.log('📝 업데이트할 톤:', tone);
+      console.log('📝 업데이트할 톤 (원본):', tone);
       
       if (!tone) {
         throw new Error('톤이 제공되지 않았습니다');
       }
+      
+      // 톤 정규화: tone1, tone2, tone3 -> 1, 2, 3
+      if (typeof tone === 'string' && tone.startsWith('tone')) {
+        tone = parseInt(tone.replace('tone', ''));
+      }
+      
+      console.log('📝 정규화된 톤:', tone);
       
       // 사용자 데이터 업데이트
       this.userData.tone = tone;
