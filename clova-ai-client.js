@@ -182,10 +182,41 @@ class ClovaAIClient {
         return result.content.trim();
         
       } else {
-        // 배포 환경: CORS 문제로 직접 호출 불가, Mock 데이터 사용
-        console.log('🌐 배포 환경에서는 CORS 정책으로 Clova AI 직접 호출 불가');
-        console.log('📝 Mock 데이터로 폴백');
-        throw new Error('배포 환경에서는 프록시 서버 필요');
+        // 배포 환경: Vercel 프록시 서버 사용
+        console.log('🌐 배포 환경에서 Vercel 프록시 서버 사용');
+        
+        // TODO: Vercel 배포 후 실제 도메인으로 변경 필요
+        const vercelProxyUrl = 'https://your-proxy-domain.vercel.app/api/clova';
+        const proxyData = {
+          ...requestBody,
+          apiKey: this.API_KEY,
+          requestId: requestId
+        };
+        
+        const response = await fetch(vercelProxyUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(proxyData)
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Vercel 프록시 오류: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        if (!result.success) {
+          throw new Error(result.error || 'Vercel 프록시 호출 실패');
+        }
+        
+        if (!result.content || result.content.trim() === '') {
+          console.warn('⚠️ Vercel 프록시를 통한 Clova AI 응답이 비어있음');
+          throw new Error('빈 응답');
+        }
+        
+        console.log('✅ Vercel 프록시를 통한 Clova AI 응답 성공:', result.content.substring(0, 100) + '...');
+        return result.content.trim();
       }
 
 
