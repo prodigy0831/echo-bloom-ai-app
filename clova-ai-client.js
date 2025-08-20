@@ -186,8 +186,8 @@ class ClovaAIClient {
         // 배포 환경: Vercel 프록시 서버 사용
         console.log('🌐 배포 환경에서 Vercel 프록시 서버 사용');
         
-        // Vercel 자동 배포 도메인 사용 (Vercel에서 제공하는 도메인)
-        const vercelProxyUrl = 'https://echo-bloom-ai-app.vercel.app/api/clova';
+        // Vercel 자동 배포 도메인 사용 (파일명 변경으로 캐시 우회)
+        const vercelProxyUrl = 'https://echo-bloom-ai-app.vercel.app/api/proxy';
         const proxyData = {
           ...requestBody,
           apiKey: this.API_KEY,
