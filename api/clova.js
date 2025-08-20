@@ -2,19 +2,8 @@
 // GitHub Pages에서 Clova AI 사용을 위한 CORS 우회 프록시
 
 export default async function handler(req, res) {
-  // CORS 헤더 설정 - GitHub Pages 도메인만 허용 (보안)
-  const allowedOrigins = [
-    'https://prodigy0831.github.io',
-    'http://localhost:3001',
-    'http://localhost:3002',
-    'http://127.0.0.1:3001',
-    'http://127.0.0.1:3002'
-  ];
-  
-  const origin = req.headers.origin;
-  if (allowedOrigins.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-  }
+  // CORS 헤더 설정 - 모든 도메인 허용 (개발용)
+  res.setHeader('Access-Control-Allow-Origin', '*');
   
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');

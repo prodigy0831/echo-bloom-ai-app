@@ -10,7 +10,7 @@
       "headers": [
         {
           "key": "Access-Control-Allow-Origin",
-          "value": "https://prodigy0831.github.io"
+          "value": "*"
         },
         {
           "key": "Access-Control-Allow-Methods",
