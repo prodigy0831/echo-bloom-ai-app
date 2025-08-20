@@ -171,20 +171,53 @@ const musicIcon = document.getElementById('musicIcon');
 const bgMusic = document.getElementById('bgMusic');
 
 if (musicToggle && musicIcon && bgMusic) {
-  musicToggle.addEventListener('click', () => {
-    if (bgMusic.paused) {
-      bgMusic.play();
-      musicIcon.innerHTML = `
-        <rect x="6" y="4" width="4" height="16"></rect>
-        <rect x="14" y="4" width="4" height="16"></rect>
-      `;
-      musicToggle.setAttribute('aria-label', '음악 일시정지');
-    } else {
-      bgMusic.pause();
-      musicIcon.innerHTML = `<polygon points="6,4 20,12 6,20" />`;
-      musicToggle.setAttribute('aria-label', '음악 재생');
+  console.log('🎵 음악 컨트롤 초기화됨');
+  
+  // 음악 로드 상태 확인
+  bgMusic.addEventListener('loadeddata', () => {
+    console.log('🎵 음악 파일 로드 완료:', bgMusic.src);
+  });
+  
+  bgMusic.addEventListener('error', (e) => {
+    console.error('❌ 음악 파일 로드 실패:', e);
+    console.error('🔍 음악 파일 경로:', bgMusic.src);
+  });
+  
+  musicToggle.addEventListener('click', async () => {
+    try {
+      if (bgMusic.paused) {
+        console.log('▶️ 음악 재생 시도');
+        await bgMusic.play();
+        musicIcon.innerHTML = `
+          <rect x="6" y="4" width="4" height="16"></rect>
+          <rect x="14" y="4" width="4" height="16"></rect>
+        `;
+        musicToggle.setAttribute('aria-label', '음악 일시정지');
+        console.log('✅ 음악 재생 성공');
+      } else {
+        console.log('⏸️ 음악 일시정지');
+        bgMusic.pause();
+        musicIcon.innerHTML = `<polygon points="6,4 20,12 6,20" />`;
+        musicToggle.setAttribute('aria-label', '음악 재생');
+      }
+    } catch (error) {
+      console.error('❌ 음악 재생 실패:', error);
+      alert('음악을 재생할 수 없습니다. 브라우저 설정을 확인해주세요.');
     }
   });
+  
+  // 음악 파일 존재 여부 확인
+  fetch(bgMusic.src, { method: 'HEAD' })
+    .then(response => {
+      if (response.ok) {
+        console.log('✅ 음악 파일 접근 가능:', bgMusic.src);
+      } else {
+        console.error('❌ 음악 파일 접근 불가:', response.status);
+      }
+    })
+    .catch(error => {
+      console.error('❌ 음악 파일 확인 실패:', error);
+    });
 }
 
 /* ==========================
