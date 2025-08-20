@@ -1,4 +1,11 @@
 {
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/clova.js",
+      "use": "@vercel/node"
+    }
+  ],
   "functions": {
     "api/clova.js": {
       "maxDuration": 30
