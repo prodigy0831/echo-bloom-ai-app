@@ -1,5 +1,4 @@
 {
-  "_comment": "Serverless Function only",
   "functions": {
     "api/clova.js": {
       "maxDuration": 30
